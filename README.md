@@ -1,26 +1,36 @@
 # RiseDataLabs---technical-assessment
 
-This repository contains a Harbor task built around a SymPy bug fix.
+This repository documents how I created a Harbor task around a real SymPy bug and how I approached the challenge from setup to verification.
 
-## What I built
+## Challenge Summary
 
-The task reproduces and fixes a SymPy issue where `PythonCodePrinter` could not print `Indexed` objects such as `A[i]`.
+The task I built reproduces and fixes a SymPy issue where `PythonCodePrinter` could not print `Indexed` objects such as `A[i]`.
 
-The finished task lives in [harbor-tasks/swe-sympy-16669](harbor-tasks/swe-sympy-16669).
+The finished task is in [harbor-tasks/swe-sympy-16669](harbor-tasks/swe-sympy-16669).
 
-## Steps I took
+## Why I Chose SWE-bench
 
-1. Tried installing Harbor with `uv tool install harbor`.
-2. Hit a Python compatibility issue because the default interpreter was too new.
-3. Installed Python 3.13 and retried Harbor with that version.
-4. Created the task folder structure under `harbor-tasks/swe-sympy-16669`.
-5. Wrote the task prompt in [instruction.md](harbor-tasks/swe-sympy-16669/instruction.md).
-6. Added the container setup in [environment/Dockerfile](harbor-tasks/swe-sympy-16669/environment/Dockerfile).
-7. Added the verifier in [tests/test.sh](harbor-tasks/swe-sympy-16669/tests/test.sh).
-8. Added the reference fix in [solution/solve.sh](harbor-tasks/swe-sympy-16669/solution/solve.sh).
-9. Verified the bug fix path for `PythonCodePrinter` on `Indexed` inputs.
+I chose SWE-bench because it mirrors a real software engineering workflow: identify a bug in an existing codebase, understand the surrounding implementation, reproduce the failure, make a minimal fix, and verify the result with tests. That made it a strong fit for demonstrating how I solve debugging tasks in a structured way.
 
-## Project layout
+Before building the task, I reviewed the SWE-bench repository to understand how the task flow, environment setup, and verification process work. I also watched the Harbor task explainer video so I could understand how Harbor tasks are structured and executed.
+
+## How I Solved It
+
+My approach was to keep the task minimal and focused:
+
+1. I first tried installing Harbor with `uv tool install harbor`.
+2. That failed because the default Python version was too new for one of Harbor's dependencies.
+3. I fixed that by installing Python 3.13 and reinstalling Harbor with that interpreter.
+4. I then created the Harbor task folder structure under `harbor-tasks/swe-sympy-16669`.
+5. I wrote the task instructions in [instruction.md](harbor-tasks/swe-sympy-16669/instruction.md) so the challenge was clear and reproducible.
+6. I defined the task environment in [environment/Dockerfile](harbor-tasks/swe-sympy-16669/environment/Dockerfile) and pinned SymPy to the correct release branch.
+7. I added the verifier in [tests/test.sh](harbor-tasks/swe-sympy-16669/tests/test.sh) so the fix could be checked automatically.
+8. I added the reference solution in [solution/solve.sh](harbor-tasks/swe-sympy-16669/solution/solve.sh).
+9. I verified that `PythonCodePrinter().doprint(A[i])` succeeds for `Indexed` inputs.
+
+## What the Task Contains
+
+The task is intentionally small and targeted:
 
 ```text
 harbor-tasks/swe-sympy-16669/
@@ -34,11 +44,9 @@ harbor-tasks/swe-sympy-16669/
     └── solve.sh
 ```
 
-## How to run
+## How to Run It
 
-The task is meant to be run through Harbor.
-
-### Run the task
+I run the Harbor task with a low turn limit to avoid hitting the free-model rate limit:
 
 ```bash
 harbor run -p swe-sympy-16669 \
@@ -47,41 +55,24 @@ harbor run -p swe-sympy-16669 \
     --ak max_turns=3
 ```
 
-This launches the `swe-sympy-16669` task with the `terminus-2` agent and the `openrouter/openrouter/free` model.
-I set `max_turns=3` to keep the run short and avoid hitting the free-model rate limit, which had blocked me on other API-backed LLM runs.
+I use `max_turns=3` so the run stays short and avoids the rate-limit issue I hit with other API-backed free LLM runs.
 
-The task environment still expects SymPy to be available at `/workspace/sympy`.
+If you want to run the environment or verify the task manually, the Dockerfile expects SymPy to be available at `/workspace/sympy`.
 
-### 1. Build the environment
+### Optional Manual Setup
 
 ```bash
 docker build -f harbor-tasks/swe-sympy-16669/environment/Dockerfile -t sympy-16669 .
-```
-
-### 2. Start a container
-
-```bash
 docker run --rm -it sympy-16669 bash
 ```
 
-### 3. Run the reference fix
-
-From inside the container, apply the reference solution:
+Inside the container, you can run the reference solution and verifier directly:
 
 ```bash
 bash /path/to/your/copied/solution/solve.sh
-```
-
-If you are running from this repository mounted into the container, use the mounted path to `solution/solve.sh`.
-
-### 4. Run the verifier
-
-```bash
 bash /path/to/your/copied/tests/test.sh
 ```
 
-The verifier checks that `PythonCodePrinter().doprint(A[i])` succeeds and produces indexed output.
+## Outcome
 
-## Notes
-
-This is a minimal Harbor task, so the repo is intentionally small: it focuses on one targeted SymPy bug, one reference fix, and one verifier script.
+I enjoyed the challenge and learned a great deal from it. More importantly, it gave me practice with reading an upstream repository, understanding the task framework, and turning a bug report into a minimal, testable solution.
