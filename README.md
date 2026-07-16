@@ -44,4 +44,22 @@ Simple. 1 file change.
 Next: create full harbor task files.
 Done.
 
+# Harbor Tasks
+
+## Next: Task Folder Structure
+
+One Harbor task folder must have these main things:
+
+```bash
+swe-sympy-16669/
+├── instruction.md          # What the agent is told to do
+├── task.toml               # Config (name, timeout, resources, etc)
+├── environment/            # Docker setup
+│   └── Dockerfile
+├── tests/                  # Verifier
+│   └── test.sh
+└── solution/               # Optional reference fix
+    └── solve.sh
+```
+
 
